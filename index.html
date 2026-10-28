@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyTime // Focus Measured</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a12;
+            --panel-bg: #121224;
+            --cyan-glow: #00f0ff;
+            --purple-glow: #bd00ff;
+            --emerald-glow: #00ff66;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --border-color: #2a2a4a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(189, 0, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.08) 0px, transparent 50%);
+        }
+
+        header {
+            max-width: 1400px;
+            margin: 0 auto 24px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.05);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        h1 span {
+            color: var(--cyan-glow);
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .dashboard-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .card-cyan::before { background: var(--cyan-glow); box-shadow: 0 0 10px var(--cyan-glow); }
+        .card-purple::before { background: var(--purple-glow); box-shadow: 0 0 10px var(--purple-glow); }
+        .card-emerald::before { background: var(--emerald-glow); box-shadow: 0 0 10px var(--emerald-glow); }
+
+        .card h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Block */
+        .stats-col { grid-column: span 3; }
+        .main-col { grid-column: span 6; }
+        .side-col { grid-column: span 3; }
+
+        @media (max-width: 1024px) {
+            .stats-col { grid-column: span 6; }
+            .main-col { grid-column: span 12; }
+            .side-col { grid-column: span 6; }
+        }
+
+        @media (max-width: 640px) {
+            .stats-col, .side-col { grid-column: span 12; }
+        }
+
+        .stat-box {
+            background: rgba(25, 25, 45, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        /* Progress Circle Layout */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-family: monospace;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.2);
+            margin: 10px 0;
+        }
+
+        .timer-state {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--cyan-glow);
+            margin-bottom: 15px;
+        }
+
+        /* Tabs and Controls */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .btn {
+            background: #1a1a3a;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #25254a;
+            border-color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+        }
+
+        .btn-primary:hover {
+            background: var(--cyan-glow);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        .btn-active {
+            background: var(--purple-glow) !important;
+            color: white !important;
+            box-shadow: 0 0 10px var(--purple-glow);
+            border-color: transparent;
+        }
+
+        /* Forms Control */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: #161630;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.9rem;
+            transition: border 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--cyan-glow);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Laps & Lists display */
+        .log-list {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .log-item {
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 4px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-wrap {
+            background: #161630;
+            height: 8px;
+            border-radius: 4px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar-fill {
+            background: var(--emerald-glow);
+            height: 100%;
+            width: 0%;
+            box-shadow: 0 0 8px var(--emerald-glow);
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>STUDY<span>TIME</span></h1>
+            <div class="subtitle">Focus Engine v2.0 // Measured Performance</div>
+        </div>
+        <button class="btn" onclick="testSound()" style="flex:none; font-size:0.75rem;">♫ Test Sound</button>
+    </header>
+
+    <div class="dashboard-grid">
+        
+        <!-- COLUMN 1: LIVE VITAL STATS -->
+        <div class="stats-col">
+            <div class="card card-purple" style="height: 100%;">
+                <h2>⚡ Core Vitals</h2>
+                
+                <div class="stat-box">
+                    <span class="stat-label">Focused Today</span>
+                    <span class="stat-value" id="stat-focused-time">0m</span>
+                </div>
+                
+                <div class="stat-box">
+                    <span class="stat-label">Sessions Complete</span>
+                    <span class="stat-value" id="stat-sessions-count">0</span>
+                </div>
+                
+                <div class="stat-box">
+                    <span class="stat-label">Daily Goal Target</span>
+                    <span class="stat-value" id="stat-goal-percent">0%</span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">Current Streak</span>
+                    <span class="stat-value" id="stat-streak" style="color:var(--purple-glow)">0 Days</span>
+                </div>
+
+                <!-- GOAL CONFIGURATOR -->
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <div class="form-group">
+                        <label>Target Threshold (Hours)</label>
+                        <input type="number" id="target-hours" value="3" min="1" max="24" onchange="updateDailyGoalMetric()">
+                    </div>
+                    <div class="stat-label" style="margin-bottom:2px;">Goal Progression</div>
